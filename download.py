@@ -3,7 +3,7 @@ import sys
 import tarfile
 import urllib
 
-  def maybe_download_and_extract_dataset(data_url, dest_directory):
+def maybe_download_and_extract_dataset(data_url, dest_directory):
     """Download and extract data set tar file.
 
     If the data set we're using doesn't already exist, this function
