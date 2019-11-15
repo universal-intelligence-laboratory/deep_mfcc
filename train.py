@@ -7,6 +7,7 @@ import torch
 from torch.utils.data import DataLoader
 import torch.optim as optim
 import tqdm
+import random
 from tensorboardX import SummaryWriter
 
 from model import YDataset, MFCCNet
@@ -23,7 +24,7 @@ def train():
     data_path = "y_all.npy"
     if not os.path.exists(data_path):
         y_all = []
-        for i in tqdm.tqdm(glob.glob(os.path.join(data_dir, "*/*.wav"))):
+        for i in tqdm.tqdm(random.choices(glob.glob(os.path.join(data_dir, "*/*.wav")), k = 1000)):
             y, sr = librosa.load(i, sr=None, mono=True)
             y_all.extend(list(y))
 
@@ -33,10 +34,10 @@ def train():
         y_all = np.load(data_path)
 
     print(y_all.shape)
-    train_loader = DataLoader(YDataset(y_all), batch_size=128, shuffle=True)
+    train_loader = DataLoader(YDataset(y_all), batch_size=32, shuffle=True)
 
     model = MFCCNet().to(device)
-    optimizer = optim.SGD(model.parameters(), lr=0.0001)
+    optimizer = optim.SGD(model.parameters(), lr=0.001)
     model.train()
 
     for i in range(int(1e10)):
@@ -50,7 +51,7 @@ def train():
             writer.add_scalar('loss', loss.detach().cpu().numpy(), batch_idx)
             loss.backward()
             optimizer.step()
-            print(loss.detach())
+            # print(loss.detach())
 
 
 if __name__ == "__main__":
