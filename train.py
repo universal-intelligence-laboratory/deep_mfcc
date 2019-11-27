@@ -36,7 +36,7 @@ def train():
     print(y_all.shape)
     train_loader = DataLoader(YDataset(y_all), batch_size=256, shuffle=True)
 
-    model = SampleMel().to(device)
+    model = MelNet().to(device)
     optimizer = optim.AdamW(model.parameters(), lr=0.0001)
     model.train()
 
