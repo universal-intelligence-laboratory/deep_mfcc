@@ -4,6 +4,8 @@ from torch import nn
 import torch.nn.functional as F
 from torch.utils.data import Dataset
 from synthesis import build_model, wavegen
+from nnAudio import Spectrogram as nnASpectrogram
+
 class MFCCNet(nn.Module):
     def __init__(self):
         super(MFCCNet, self).__init__()
@@ -42,6 +44,27 @@ class MFCCNet(nn.Module):
         x = x.view(B, 128, -1)
         loss = F.mse_loss(x, mfcc)
         return loss, x, mfcc
+
+
+
+class MelnnAudio(nn.Module):
+    def __init__(self):
+        super(MelnnAudio, self).__init__()
+        self.ta = MelSpectrogram(sample_rate=8000)
+        self.nna = nnASpectrogram.MelSpectrogram(sr=8000, n_fft=400, device='cpu', norm = None)
+        self.mask = torch.nn.Parameter(torch.ones([128,81]))
+
+
+    def forward(self, x):
+        B = tuple(x.shape)[0]
+        ta = self.ta(x)
+        # print(ta.shape)
+        nna = self.nna(x)
+        # 1/0
+        nna = self.mask * nna
+        # print(nna.shape)
+        loss = F.mse_loss(ta, nna)
+        return loss, nna, ta
 
 
 class MelNet(nn.Module):
